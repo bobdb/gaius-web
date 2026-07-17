@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaius Farms — Tarrytown, NY</title>
+<meta name="description" content="Gaius Farms is a hydroponic growing operation based in Tarrytown, New York. Coming to the TaSH Farmers Market in 2027.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B1613;
+    --bg-2: #101E19;
+    --ink: #E9F2ED;
+    --muted: #8FA69C;
+    --chlorophyll: #4FAE72;
+    --chlorophyll-dim: #2F6B48;
+    --glow: #C770E8;
+    --glow-dim: #6B4478;
+    --line: rgba(233, 242, 237, 0.09);
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+  }
+
+  /* Ambient grow-light wash, breathing slowly behind the content */
+  .wash{
+    position: fixed;
+    inset: -20%;
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 18%, rgba(199, 112, 232, 0.16), transparent 60%),
+      radial-gradient(ellipse 55% 50% at 50% 85%, rgba(79, 174, 114, 0.14), transparent 65%);
+    animation: breathe 9s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes breathe{
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+  }
+
+  .grain{
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .stage{
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+  }
+
+  h1{
+    font-family: 'Fraunces', serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-size: clamp(48px, 11vw, 84px);
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .tagline{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 22px 0 0;
+  }
+
+  .dot-glow{
+    color: var(--glow);
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes pulse{
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .wash{ animation: none; }
+    .dot-glow{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="wash"></div>
+  <div class="grain"></div>
+
+  <main class="stage">
+    <h1>Gaius Farms</h1>
+    <p class="tagline">coming soon<span class="dot-glow">...</span></p>
+  </main>
+
+</body>
+</html>
