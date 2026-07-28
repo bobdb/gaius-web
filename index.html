@@ -101,9 +101,132 @@
     50% { opacity: 1; }
   }
 
+  .specimen-rail{
+    position: relative;
+    margin-top: 40px;
+  }
+
+  .specimens{
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+  }
+
+  .specimens:focus-visible{
+    outline: 1px solid var(--chlorophyll);
+    outline-offset: 6px;
+  }
+
+  .specimens::-webkit-scrollbar{ display: none; }
+
+  .specimen-arrow{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: var(--bg-2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.25s ease, border-color 0.25s ease, opacity 0.25s ease;
+    z-index: 1;
+  }
+
+  .specimen-arrow svg{
+    width: 14px;
+    height: 14px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .specimen-arrow:hover,
+  .specimen-arrow:focus-visible{
+    color: var(--chlorophyll);
+    border-color: var(--chlorophyll-dim);
+  }
+
+  .specimen-arrow:focus-visible{
+    outline: 1px solid var(--chlorophyll);
+    outline-offset: 2px;
+  }
+
+  .specimen-arrow:disabled{
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  .specimen-arrow--prev{ left: -4px; }
+  .specimen-arrow--next{ right: -4px; }
+
+  .specimen-track{
+    display: flex;
+    gap: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 4px 24px;
+    width: max-content;
+  }
+
+  .specimen{
+    scroll-snap-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 168px;
+    padding: 8px 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: var(--bg-2);
+  }
+
+  .specimen img{
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    border-radius: 2px;
+    filter: grayscale(70%) brightness(0.8) saturate(1);
+    transition: filter 0.5s ease;
+  }
+
+  .specimen:hover img,
+  .specimen:focus-visible img{
+    filter: grayscale(0%) brightness(1);
+  }
+
+  .footer-stamp{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 18px;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
   @media (prefers-reduced-motion: reduce){
     .wash{ animation: none; }
     .dot-glow{ animation: none; }
+    .specimens{ scroll-behavior: auto; }
   }
 </style>
 </head>
@@ -115,7 +238,64 @@
   <main class="stage">
     <h1>Gaius Farms</h1>
     <p class="tagline">coming soon<span class="dot-glow">...</span></p>
+
+    <!-- Images: CC0-licensed, sourced from Wikimedia Commons (see images/CREDITS.txt) -->
+    <!-- Specimen list is populated at runtime from images/manifest.json -->
+    <div class="specimen-rail">
+      <button class="specimen-arrow specimen-arrow--prev" type="button" aria-label="Previous specimen" aria-controls="specimens">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="specimens" id="specimens" role="region" aria-label="A few things taking root" tabindex="0">
+        <ul class="specimen-track"></ul>
+      </div>
+      <button class="specimen-arrow specimen-arrow--next" type="button" aria-label="Next specimen" aria-controls="specimens">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
   </main>
+
+  <p class="footer-stamp">&copy; 2026 Gaius Farms LLC</p>
+
+  <script>
+    (async () => {
+      const rail = document.querySelector('.specimens');
+      const track = document.querySelector('.specimen-track');
+      const prev = document.querySelector('.specimen-arrow--prev');
+      const next = document.querySelector('.specimen-arrow--next');
+      if (!rail || !track || !prev || !next) return;
+
+      try {
+        const res = await fetch('images/manifest.json');
+        const specimens = await res.json();
+        for (const { file, alt } of specimens) {
+          const li = document.createElement('li');
+          li.className = 'specimen';
+          const img = document.createElement('img');
+          img.src = `images/${file}`;
+          img.alt = alt ?? '';
+          img.loading = 'lazy';
+          li.appendChild(img);
+          track.appendChild(li);
+        }
+      } catch (err) {
+        console.error('Could not load specimen images:', err);
+      }
+
+      const step = () => (rail.querySelector('.specimen')?.offsetWidth ?? 168) + 12;
+
+      const updateArrows = () => {
+        const max = rail.scrollWidth - rail.clientWidth;
+        prev.disabled = rail.scrollLeft <= 1;
+        next.disabled = rail.scrollLeft >= max - 1;
+      };
+
+      prev.addEventListener('click', () => rail.scrollBy({ left: -step(), behavior: 'smooth' }));
+      next.addEventListener('click', () => rail.scrollBy({ left: step(), behavior: 'smooth' }));
+      rail.addEventListener('scroll', updateArrows, { passive: true });
+      window.addEventListener('resize', updateArrows);
+      updateArrows();
+    })();
+  </script>
 
 </body>
 </html>
